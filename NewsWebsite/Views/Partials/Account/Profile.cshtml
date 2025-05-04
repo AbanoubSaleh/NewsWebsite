@@ -1,0 +1,78 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Your Profile</h3>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginUmbracoForm("UpdateProfile", "AccountSurface", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+                    {
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label">Full Name</label>
+                                <input asp-for="Name" class="form-control" />
+                                <span asp-validation-for="Name" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label">Email</label>
+                                <input asp-for="Email" class="form-control" readonly />
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Bio" class="form-label">Bio</label>
+                            <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Bio" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <div class="card shadow mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Change Password</h3>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginUmbracoForm("ChangePassword", "AccountSurface", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate" }))
+                    {
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        
+                        <div class="mb-3">
+                            <label asp-for="CurrentPassword" class="form-label">Current Password</label>
+                            <input asp-for="CurrentPassword" class="form-control" type="password" />
+                            <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="NewPassword" class="form-label">New Password</label>
+                            <input asp-for="NewPassword" class="form-control" type="password" />
+                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="ConfirmNewPassword" class="form-label">Confirm New Password</label>
+                            <input asp-for="ConfirmNewPassword" class="form-control" type="password" />
+                            <span asp-validation-for="ConfirmNewPassword" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Change Password</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
