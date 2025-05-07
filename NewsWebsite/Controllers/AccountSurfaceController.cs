@@ -65,10 +65,8 @@ namespace NewsWebsite.Controllers
                     model.Email,
                     model.Email,
                     "Member",
-                    isApproved: true);
-                
-                // Set the name property
-                memberUser.Name = model.Name;
+                    isApproved: true,
+                    model.Name);
 
                 // Create the member
                 var result = await _memberManager.CreateAsync(
@@ -230,21 +228,13 @@ namespace NewsWebsite.Controllers
             return View("~/Views/Partials/Account/ResetPasswordConfirmation.cshtml");
         }
 
-        [HttpPost]
-        public async Task<IActionResult> ChangePassword(ProfileViewModel model)
-        {
-            if (string.IsNullOrEmpty(model.CurrentPassword) || 
-                string.IsNullOrEmpty(model.NewPassword) || 
-                string.IsNullOrEmpty(model.ConfirmNewPassword))
-            {
-                ModelState.AddModelError("", "All password fields are required.");
-                return CurrentUmbracoPage();
-            }
+        // Add these methods to the AccountSurfaceController class 
 
-            if (model.NewPassword != model.ConfirmNewPassword)
+        public async Task<IActionResult> Profile()
+        {
+            if (User != null && !User.Identity!.IsAuthenticated)
             {
-                ModelState.AddModelError("", "The new password and confirmation password do not match.");
-                return CurrentUmbracoPage();
+                return Redirect("/login");
             }
 
             var member = await _memberManager.GetCurrentMemberAsync();
@@ -253,16 +243,105 @@ namespace NewsWebsite.Controllers
                 return Redirect("/login");
             }
 
+            var model = new ProfileViewModel
+            {
+                Name = member.Name!,
+                Email = member.Email!,
+                Bio = "this is my bio"
+
+            };
+
+            return View("~/Views/Partials/Account/Profile.cshtml", model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateProfile(ProfileViewModel model)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Redirect("/login");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return CurrentUmbracoPage();
+            }
+
             try
             {
-                var result = await _memberManager.ChangePasswordAsync(
-                    member, 
-                    model.CurrentPassword, 
-                    model.NewPassword);
+                var member = await _memberManager.GetCurrentMemberAsync();
+                if (member == null)
+                {
+                    return Redirect("/login");
+                }
 
+                // Update member properties
+                member.Name = model.Name;
+                
+                // Update custom properties if they exist
+                var memberEntity = _memberService.GetByEmail(member.Email);
+                if (memberEntity != null)
+                {
+                    memberEntity.SetValue("bio", model.Bio);
+                    _memberService.Save(memberEntity);
+                }
+
+                var result = await _memberManager.UpdateAsync(member);
                 if (result.Succeeded)
                 {
-                    TempData["SuccessMessage"] = "Password changed successfully.";
+                    TempData["SuccessMessage"] = "Profile updated successfully";
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating profile");
+                ModelState.AddModelError("", "An error occurred while updating your profile");
+            }
+
+            return CurrentUmbracoPage();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ProfileViewModel model)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Redirect("/login");
+            }
+
+            if (string.IsNullOrEmpty(model.CurrentPassword) || 
+                string.IsNullOrEmpty(model.NewPassword) || 
+                string.IsNullOrEmpty(model.ConfirmNewPassword))
+            {
+                ModelState.AddModelError("", "All password fields are required");
+                return CurrentUmbracoPage();
+            }
+
+            if (model.NewPassword != model.ConfirmNewPassword)
+            {
+                ModelState.AddModelError("", "New password and confirmation do not match");
+                return CurrentUmbracoPage();
+            }
+
+            try
+            {
+                var member = await _memberManager.GetCurrentMemberAsync();
+                if (member == null)
+                {
+                    return Redirect("/login");
+                }
+
+                var result = await _memberManager.ChangePasswordAsync(member, model.CurrentPassword, model.NewPassword);
+                if (result.Succeeded)
+                {
+                    TempData["SuccessMessage"] = "Password changed successfully";
                 }
                 else
                 {
@@ -275,7 +354,7 @@ namespace NewsWebsite.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error changing password");
-                ModelState.AddModelError("", "An error occurred while changing your password.");
+                ModelState.AddModelError("", "An error occurred while changing your password");
             }
 
             return CurrentUmbracoPage();

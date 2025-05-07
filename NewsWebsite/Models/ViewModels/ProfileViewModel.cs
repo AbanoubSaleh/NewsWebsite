@@ -6,27 +6,28 @@ namespace Clean.Core.Models.ViewModels
     {
         [Required(ErrorMessage = "Name is required")]
         [Display(Name = "Full Name")]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = null!;
 
-        [EmailAddress]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
         [Display(Name = "Email")]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; } = null!;
 
         [Display(Name = "Bio")]
-        public string Bio { get; set; } = string.Empty;
+        public string Bio { get; set; } = null!;
 
+        [Display(Name = "Current Password")]
         [DataType(DataType.Password)]
-        [Display(Name = "Current password")]
-        public string CurrentPassword { get; set; } = string.Empty;
+        public string CurrentPassword { get; set; } = null!;
 
+        [Display(Name = "New Password")]
+        [DataType(DataType.Password)]
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "New password")]
-        public string NewPassword { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = null!;
 
+        [Display(Name = "Confirm New Password")]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm new password")]
         [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
-        public string ConfirmNewPassword { get; set; } = string.Empty;
+        public string ConfirmNewPassword { get; set; } = null!;
     }
 }

@@ -1,0 +1,11 @@
+﻿@using Clean.Core.Models.ViewModels
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
+@{
+    Layout = "Master.cshtml";
+    ViewData["Title"] = "Profile";
+    
+    // Get the model from ViewData if it exists
+    var profileModel = ViewData["ProfileModel"] as ProfileViewModel ?? new ProfileViewModel();
+}
+
+@await Html.PartialAsync("~/Views/Partials/Account/Profile.cshtml", profileModel)
