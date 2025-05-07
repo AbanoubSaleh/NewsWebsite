@@ -1,15 +1,12 @@
 @using Umbraco.Cms.Web.Common.PublishedModels
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @inject Umbraco.Cms.Web.Common.UmbracoHelper Umbraco
+@using Microsoft.AspNetCore.Http
+@using System.Security.Claims
 
 @{
     Layout = null;
-
-    // Get pages by document type alias
-    var loginPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "loginPage");
-    var registerPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "registerPage");
-    var profilePage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "profilePage");
-    var logoutPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "logoutPage");
+    var isAuthenticated = User?.Identity?.IsAuthenticated ?? false;
 }
 
 <!DOCTYPE html>
@@ -23,41 +20,30 @@
     <link rel="stylesheet" href="/css/site.css" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" href="/">EventSphere</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/news">News</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/events">Events</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
-                    </ul>
-
-                    <ul class="navbar-nav">
-                        @if (User.Identity?.IsAuthenticated ?? false)
-                        {
-                            <li class="nav-item"><a class="nav-link" href="@profilePage?.Url()">Profile</a></li>
-                            <li class="nav-item"><a class="nav-link" href="@logoutPage?.Url()">Logout</a></li>
-                        }
-                        else
-                        {
-                            <li class="nav-item"><a class="nav-link" href="@loginPage?.Url()">Login</a></li>
-                            <li class="nav-item"><a class="nav-link" href="@registerPage?.Url()">Register</a></li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+    @await Html.PartialAsync("~/Views/Partials/Header.cshtml")
 
     <main class="container py-3">
-        @RenderBody()
+        @if (ViewContext.RouteData.Values["controller"]?.ToString() == "EventListing" || 
+             ViewContext.RouteData.Values["controller"]?.ToString() == "EventDetails")
+        {
+            @if (isAuthenticated)
+            {
+                @RenderBody()
+            }
+            else
+            {
+                <div class="alert alert-info text-center p-4 my-4">
+                    <h4 class="alert-heading mb-3">Please Login to Continue</h4>
+                    <p>To see the complete list of our planned events and view event details, please <a href="/login" class="alert-link">login to your account</a>.</p>
+                    <hr>
+                    <p class="mb-0">You can still view our featured upcoming events on the <a href="/" class="alert-link">home page</a>.</p>
+                </div>
+            }
+        }
+        else
+        {
+            @RenderBody()
+        }
     </main>
 
     <footer class="footer mt-auto py-3 bg-light border-top">

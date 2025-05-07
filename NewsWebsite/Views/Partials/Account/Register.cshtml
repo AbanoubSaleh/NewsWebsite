@@ -28,6 +28,13 @@
                         </div>
                         
                         <div class="mb-3">
+                            <label asp-for="MobilePhone" class="form-label">Mobile Phone</label>
+                            <input asp-for="MobilePhone" class="form-control" placeholder="01xxxxxxxxx" />
+                            <span asp-validation-for="MobilePhone" class="text-danger"></span>
+                            <small class="form-text text-muted">Egyptian mobile number starting with 01</small>
+                        </div>
+                        
+                        <div class="mb-3">
                             <label asp-for="Password" class="form-label">Password</label>
                             <input asp-for="Password" class="form-control" type="password" />
                             <span asp-validation-for="Password" class="text-danger"></span>

@@ -1,0 +1,43 @@
+@using Umbraco.Cms.Web.Common.PublishedModels
+@inject Umbraco.Cms.Web.Common.UmbracoHelper Umbraco
+
+@{
+    // Get pages by document type alias
+    var loginPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "loginPage");
+    var registerPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "registerPage");
+    var profilePage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "profilePage");
+    var logoutPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "logoutPage");
+}
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom box-shadow mb-3">
+        <div class="container">
+            <a class="navbar-brand" href="/">EventSphere</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/news">News</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/events">Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
+                </ul>
+
+                <ul class="navbar-nav">
+                    @if (User.Identity?.IsAuthenticated ?? false)
+                    {
+                        <li class="nav-item"><a class="nav-link" href="@profilePage?.Url()">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@logoutPage?.Url()">Logout</a></li>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" href="@loginPage?.Url()">Login</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@registerPage?.Url()">Register</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>

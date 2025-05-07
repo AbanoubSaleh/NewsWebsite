@@ -75,6 +75,14 @@ namespace NewsWebsite.Controllers
 
                 if (result.Succeeded)
                 {
+                    // Save the mobile phone number to the member
+                    var memberEntity = _memberService.GetByEmail(model.Email);
+                    if (memberEntity != null)
+                    {
+                        memberEntity.SetValue("mobilePhone", model.MobilePhone);
+                        _memberService.Save(memberEntity);
+                    }
+
                     // Sign in the user
                     await _memberSignInManager.SignInAsync(memberUser, isPersistent: false);
 
@@ -164,7 +172,7 @@ namespace NewsWebsite.Controllers
                 
                 // Create reset password link
                 var resetLink = Url.Action("ResetPassword", "Account", 
-                    new { email = model.Email, token = token }, 
+                    new { email = model.Email, token }, 
                     protocol: Request.Scheme);
 
                 // TODO: Send email with reset link
