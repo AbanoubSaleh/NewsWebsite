@@ -2,5 +2,122 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.HomePage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @{
-	Layout = null;
+    Layout = "Master.cshtml";
+    ViewData["Title"] = "Home";
+    var eventsPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "eventListingPage");
+
+    // Get the latest 3 events
+    var latestEvents = Umbraco.ContentAtRoot()
+        .DescendantsOrSelf<EventDetailPage>()
+        .Where(e => e.IsVisible())
+        .OrderByDescending(e => e.EventDate)
+        .Take(3);
 }
+
+<!-- Hero Banner Section -->
+@if (Model.Banner != null)
+{
+    <div class="hero-banner mb-5" style="background-image: url('@Model.Banner.Url()'); background-size: cover; background-position: center;">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 col-lg-6 py-5">
+                    <div class="bg-white bg-opacity-75 p-4 rounded shadow">
+                        <h1 class="display-4">Welcome to Our Events</h1>
+                        <p class="lead">Discover exciting events and activities happening in your area.</p>
+                        <a href="@eventsPage?.Url()" class="btn btn-primary btn-lg">Browse All Events</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="container">
+    <!-- Main Content -->
+    @if (Model.MainContent != null)
+    {
+        <div class="row mb-5">
+            <div class="col-12">
+                @Model.MainContent
+            </div>
+        </div>
+    }
+
+    <!-- Featured Events Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="border-bottom pb-2 mb-4">Upcoming Events</h2>
+        </div>
+
+        @if (latestEvents.Any())
+        {
+            foreach (var eventItem in latestEvents)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        @if (eventItem.Image != null)
+                        {
+                            <img src="@eventItem.Image.GetCropUrl(400, 250)" class="card-img-top" alt="@eventItem.Name">
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@eventItem.Name</h5>
+                            <p class="card-text text-muted">
+                                <i class="fas fa-calendar-alt me-2"></i>@eventItem.EventDate.ToString("MMM dd, yyyy")
+                            </p>
+                            @if (eventItem.Description != null)
+                            {
+                                <p class="card-text">
+                                    @{
+                                        string descriptionText = eventItem.Description.ToString() ?? "";
+                                        // Strip HTML tags for the preview
+                                        string plainText = System.Text.RegularExpressions.Regex.Replace(descriptionText, "<.*?>", string.Empty);
+                                        if (plainText.Length > 100)
+                                        {
+                                            <div class="event-description mb-4">
+                                                @(plainText.Substring(0, 100))...
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="event-description mb-4">
+                                                @plainText
+                                            </div>
+                                        }
+                                    }
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="card-text">No description available</p>
+                            }
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <a href="@eventItem.Url()" class="btn btn-outline-primary">Learn More</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No upcoming events at this time. Please check back later!
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .hero-banner {
+        min-height: 400px;
+        position: relative;
+    }
+    
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>

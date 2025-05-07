@@ -2,5 +2,162 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.EventListingPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @{
-	Layout = null;
+    Layout = "Master.cshtml";
+    ViewData["Title"] = "Events";
+
+    // Pagination setup
+    int pageSize = Model.PageSize > 0 ? Model.PageSize : 10;
+    int currentPage = 1;
+    if (int.TryParse(Context.Request.Query["page"], out int page))
+    {
+        currentPage = page;
+    }
+
+    // Get all events
+    var allEvents = Umbraco.ContentAtRoot()
+        .DescendantsOrSelf<EventDetailPage>()
+        .Where(e => e.IsVisible())
+        .OrderByDescending(e => e.EventDate);
+
+    // Calculate pagination
+    int totalItems = allEvents.Count();
+    int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+    // Get events for current page
+    var eventsForPage = allEvents.Skip((currentPage - 1) * pageSize).Take(pageSize);
 }
+
+<div class="container py-4">
+
+    <!-- Events Listing -->
+    <div class="row mb-4">
+        @if (eventsForPage.Any())
+        {
+            foreach (var eventItem in eventsForPage)
+            {
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-card">
+                        @if (eventItem.Image != null)
+                        {
+                            <img src="@eventItem.Image.GetCropUrl(400, 250)" class="card-img-top" alt="@eventItem.Name">
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@eventItem.Name</h5>
+                            <p class="card-text text-muted mb-2">
+                                <i class="fas fa-calendar-alt me-2"></i>@eventItem.EventDate.ToString("MMM dd, yyyy")
+                            </p>
+                            @if (!string.IsNullOrEmpty(eventItem.Location))
+                            {
+                                <p class="card-text text-muted mb-3">
+                                    <i class="fas fa-map-marker-alt me-2"></i>@eventItem.Location
+                                </p>
+                            }
+                            @if (eventItem.Description != null)
+                            {
+                                <div class="card-text">
+                                    @{
+                                        string descriptionText = eventItem.Description.ToString() ?? "";
+                                        // Strip HTML tags for the preview
+                                        string plainText = System.Text.RegularExpressions.Regex.Replace(descriptionText, "<.*?>", string.Empty);
+                                        if (plainText.Length > 100)
+                                        {
+                                            <div class="event-description mb-4">
+                                                @(plainText.Substring(0, 100))...
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="event-description mb-4">
+                                                @plainText
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <p class="card-text">No description available</p>
+                            }
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <a href="@eventItem.Url()" class="btn btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No events found. Please check back later for upcoming events.
+                </div>
+            </div>
+        }
+    </div>
+    
+    <!-- Pagination -->
+    @if (totalPages > 1)
+    {
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        @if (currentPage > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="?page=@(currentPage - 1)" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">&laquo;</span>
+                            </li>
+                        }
+                        
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            if (i == currentPage)
+                            {
+                                <li class="page-item active"><span class="page-link">@i</span></li>
+                            }
+                            else
+                            {
+                                <li class="page-item"><a class="page-link" href="?page=@i">@i</a></li>
+                            }
+                        }
+                        
+                        @if (currentPage < totalPages)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="?page=@(currentPage + 1)" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">&raquo;</span>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>

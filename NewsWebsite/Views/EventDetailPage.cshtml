@@ -2,5 +2,95 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.EventDetailPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @{
-	Layout = null;
+    Layout = "Master.cshtml";
+    ViewData["Title"] = Model.Name;
 }
+
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item"><a href="/events">Events</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+    
+    <div class="row mb-5">
+        <!-- Event Details -->
+        <div class="col-lg-8">
+            <h1 class="mb-3">@Model.Name</h1>
+            
+            <div class="d-flex mb-4">
+                <div class="me-4">
+                    <i class="fas fa-calendar-alt text-primary me-2"></i>
+                    <span>@Model.EventDate.ToString("MMMM dd, yyyy")</span>
+                </div>
+                <div class="me-4">
+                    <i class="fas fa-clock text-primary me-2"></i>
+                    <span>@Model.EventDate.ToString("h:mm tt")</span>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Location))
+                {
+                    <div>
+                        <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                        <span>@Model.Location</span>
+                    </div>
+                }
+            </div>
+            
+            @if (Model.Image != null)
+            {
+                <div class="mb-4">
+                    <img src="@Model.Image.GetCropUrl(800, 450)" class="img-fluid rounded shadow" alt="@Model.Name">
+                </div>
+            }
+            
+            @if (Model.Description != null)
+            {
+                <div class="event-description mb-4">
+                    @Html.Raw(Model.Description)
+                </div>
+            }
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4 mt-5 mt-lg-0">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Event Details</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="fas fa-calendar-alt text-primary me-2"></i>
+                            <strong>Date:</strong> @Model.EventDate.ToString("MMMM dd, yyyy")
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-clock text-primary me-2"></i>
+                            <strong>Time:</strong> @Model.EventDate.ToString("h:mm tt")
+                        </li>
+                        @if (!string.IsNullOrEmpty(Model.Location))
+                        {
+                            <li class="mb-3">
+                                <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                                <strong>Location:</strong> @Model.Location
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .event-description img {
+        max-width: 100%;
+        height: auto;
+        margin: 1rem 0;
+    }
+</style>

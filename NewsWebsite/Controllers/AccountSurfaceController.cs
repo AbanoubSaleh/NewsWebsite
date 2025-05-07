@@ -149,7 +149,7 @@ namespace NewsWebsite.Controllers
             await _memberSignInManager.SignOutAsync();
             return Redirect("/");
         }
-
+        //TODO 
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
