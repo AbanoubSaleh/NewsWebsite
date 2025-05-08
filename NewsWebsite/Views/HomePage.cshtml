@@ -1,10 +1,15 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+﻿@using Umbraco.Cms.Web.Common.PublishedModels
+@using Umbraco.Extensions
+@using Umbraco.Cms.Core.Models.PublishedContent
+@using Umbraco.Cms.Core.Routing
+@using System.Linq
+@using System.Web
+@using System.Text.RegularExpressions
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.HomePage>
-@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels
 @{
-    Layout = "Master.cshtml";
+    Layout = "_Layout.cshtml";
     ViewData["Title"] = "Home";
-    var eventsPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "eventListingPage");
 
     // Get the latest 3 events
     var latestEvents = Umbraco.ContentAtRoot()
@@ -12,6 +17,11 @@
         .Where(e => e.IsVisible())
         .OrderByDescending(e => e.EventDate)
         .Take(3);
+        
+    // Get the events listing page
+    var eventsPage = Umbraco.ContentAtRoot()
+        .DescendantsOrSelf<EventListingPage>()
+        .FirstOrDefault();
 }
 
 <!-- Hero Banner Section -->
@@ -29,6 +39,43 @@
                 </div>
             </div>
         </div>
+    </div>
+}
+
+<!-- Additional Banner Section from BlockList -->
+@if (Model.BannerBlockList != null && Model.BannerBlockList.Any())
+{
+    <div class="mb-5">
+        @foreach (var bannerBlock in Model.BannerBlockList)
+        {
+            var content = bannerBlock.Content;
+            var settings = bannerBlock.Settings;
+            
+            var bannerImage = content.GetProperty("bannerImage")?.GetValue() as IPublishedContent;
+            var bannerImageUrl = bannerImage?.Url();
+            
+            <div class="hero-banner mb-3" style="background-image: url('@bannerImageUrl'); background-size: cover; background-position: center;">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8 col-lg-6 py-5">
+                            <div class="bg-white bg-opacity-75 p-4 rounded shadow">
+                                <h2 class="display-5">@content.Value("bannerTitle")</h2>
+                                <p class="lead">@content.Value("bannerContent")</p>
+                                @{
+                                    var buttonText = content.Value<string>("buttonText");
+                                    var buttonLink = content.Value<string>("buttonLink");
+                                    
+                                    if (!string.IsNullOrEmpty(buttonText) && !string.IsNullOrEmpty(buttonLink))
+                                    {
+                                        <a href="@buttonLink" class="btn btn-secondary btn-lg">@buttonText</a>
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 }
 

@@ -1,9 +1,15 @@
 ﻿@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
 @{
-    Layout = "Master.cshtml";
+    Layout = "_Layout.cshtml";
     ViewData["Title"] = "Account";
 }
 
 <div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h1>@Model.Name</h1>
+            <p>@Model.Value("description")</p>
+        </div>
+    </div>
     
 </div>
