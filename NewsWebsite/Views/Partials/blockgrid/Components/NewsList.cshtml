@@ -1,0 +1,42 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@{
+    var content = Model.Content;
+    var title = content.Value<string>("title");
+    var showImages = content.Value<bool>("showImages");
+    var newsItems = content.Value<IEnumerable<IPublishedElement>>("newsItems");
+}
+
+<div class="news-list">
+    <h2>@title</h2>
+    
+    @if (newsItems != null && newsItems.Any())
+    {
+        <div class="news-items">
+            @foreach (var item in newsItems)
+            {
+                var itemTitle = item.Value<string>("title");
+                var itemSummary = item.Value<string>("summary");
+                var itemImage = item.Value<IPublishedContent>("image");
+                var itemDate = item.Value<DateTime>("date");
+                
+                <div class="news-list-item">
+                    @if (showImages && itemImage != null)
+                    {
+                        <div class="news-image">
+                            <img src="@itemImage.Url()" alt="@itemTitle" />
+                        </div>
+                    }
+                    <div class="news-content">
+                        <h3>@itemTitle</h3>
+                        <div class="news-date">@itemDate.ToString("MMMM d, yyyy")</div>
+                        <p>@itemSummary</p>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p>No news items available.</p>
+    }
+</div>

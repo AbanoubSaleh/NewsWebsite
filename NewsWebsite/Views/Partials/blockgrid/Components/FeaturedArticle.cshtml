@@ -1,0 +1,32 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@{
+    var content = Model.Content;
+    var headline = content.Value<string>("headline");
+    var subheading = content.Value<string>("subheading");
+    var featuredImage = content.Value<IPublishedContent>("featuredImage");
+    var articleContent = content.Value<string>("content");
+    var articleLink = content.Value<IPublishedContent>("linkToFullArticle");
+}
+
+<div class="featured-article">
+    @if (featuredImage != null)
+    {
+        <div class="featured-image">
+            <img src="@featuredImage.Url()" alt="@headline" />
+        </div>
+    }
+    <div class="article-content">
+        <h2>@headline</h2>
+        @if (!string.IsNullOrEmpty(subheading))
+        {
+            <h3>@subheading</h3>
+        }
+        <div class="article-body">
+            @Html.Raw(articleContent)
+        </div>
+        @if (articleLink != null)
+        {
+            <a href="@articleLink.Url()" class="read-more">Read Full Article</a>
+        }
+    </div>
+</div>

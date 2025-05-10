@@ -1,0 +1,74 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.NewsPage>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+    Layout = "_Layout.cshtml";
+    var blockGridModel = Model.MainContent;
+}
+
+<div class="sports-news-container">
+    <!-- Sports News Navigation Tags -->
+    <div class="sports-tags-nav">
+        <ul>
+            <li><a href="#" class="tag-link" data-tag="scores">Scores</a></li>
+            <li><a href="#" class="tag-link" data-tag="transfers">Transfers</a></li>
+            <li><a href="#" class="tag-link" data-tag="football-news">Football News</a></li>
+        </ul>
+    </div>
+
+    <!-- Content Area for Partial Views -->
+    <div id="tag-content" class="tag-content-area">
+        <!-- Default content or first tab content will load here -->
+        @await Html.PartialAsync("_ScoresPartial")
+    </div>
+
+    <!-- Main Content Block Grid -->
+    <div class="news-content">
+        @if (blockGridModel != null)
+        {
+            @await Html.GetBlockGridHtmlAsync(blockGridModel)
+        }
+        else
+        {
+            <p>No content has been added to this page yet.</p>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle tag clicks
+            $('.tag-link').on('click', function(e) {
+                e.preventDefault();
+                var tag = $(this).data('tag');
+                
+                // Add active class to clicked tag
+                $('.tag-link').removeClass('active');
+                $(this).addClass('active');
+                
+                // Load appropriate partial view based on tag
+                var partialUrl = '';
+                switch(tag) {
+                    case 'scores':
+                        partialUrl = '@Url.Action("GetScoresPartial", "SportsNews")';
+                        break;
+                    case 'transfers':
+                        partialUrl = '@Url.Action("GetTransfersPartial", "SportsNews")';
+                        break;
+                    case 'football-news':
+                        partialUrl = '@Url.Action("GetFootballNewsPartial", "SportsNews")';
+                        break;
+                }
+                
+                // Load the partial view via AJAX
+                if (partialUrl) {
+                    $('#tag-content').load(partialUrl);
+                }
+            });
+            
+            // Set first tab as active by default
+            $('.tag-link:first').addClass('active');
+        });
+    </script>
+}
