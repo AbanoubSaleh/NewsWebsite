@@ -1,30 +1,63 @@
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage
-<div class="scores-container">
-    <h2>Latest Scores</h2>
-    <div class="match-list">
+<div class="scores-widget">
+    <h3 class="widget-title">Latest Scores</h3>
+    
+    <div class="match-container">
         <div class="match">
-            <div class="teams">
+            <div class="match-status-label">Finalizado</div>
+            <div class="match-row">
                 <span class="team home">Manchester United</span>
+                <div class="team-logo home-logo">
+                    <img src="/media/teams/man-utd.png" alt="Manchester United" />
+                </div>
                 <span class="score">2 - 1</span>
+                <div class="team-logo away-logo">
+                    <img src="/media/teams/liverpool.png" alt="Liverpool" />
+                </div>
                 <span class="team away">Liverpool</span>
             </div>
-            <div class="match-info">Full Time</div>
+            <div class="match-info">
+                <span class="match-competition">Premier League</span>
+                <span class="match-status">Full Time</span>
+            </div>
         </div>
+        
         <div class="match">
-            <div class="teams">
+            <div class="match-status-label">Finalizado</div>
+            <div class="match-row">
                 <span class="team home">Arsenal</span>
+                <div class="team-logo home-logo">
+                    <img src="/media/teams/arsenal.png" alt="Arsenal" />
+                </div>
                 <span class="score">3 - 0</span>
+                <div class="team-logo away-logo">
+                    <img src="/media/teams/tottenham.png" alt="Tottenham" />
+                </div>
                 <span class="team away">Tottenham</span>
             </div>
-            <div class="match-info">Full Time</div>
+            <div class="match-info">
+                <span class="match-competition">Premier League</span>
+                <span class="match-status">Full Time</span>
+            </div>
         </div>
-        <div class="match">
-            <div class="teams">
+        
+        <div class="match live-match">
+            <div class="match-status-label live">En juego</div>
+            <div class="match-row">
                 <span class="team home">Chelsea</span>
+                <div class="team-logo home-logo">
+                    <img src="/media/teams/chelsea.png" alt="Chelsea" />
+                </div>
                 <span class="score">1 - 1</span>
+                <div class="team-logo away-logo">
+                    <img src="/media/teams/man-city.png" alt="Manchester City" />
+                </div>
                 <span class="team away">Manchester City</span>
             </div>
-            <div class="match-info">Full Time</div>
+            <div class="match-info">
+                <span class="match-competition">Premier League</span>
+                <span class="match-status live">Live</span>
+            </div>
         </div>
     </div>
 </div>

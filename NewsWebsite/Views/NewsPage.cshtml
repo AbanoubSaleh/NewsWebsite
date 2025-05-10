@@ -7,19 +7,56 @@
 }
 
 <div class="sports-news-container">
-    <!-- Sports News Navigation Tags -->
-    <div class="sports-tags-nav">
-        <ul>
-            <li><a href="#" class="tag-link" data-tag="scores">Scores</a></li>
-            <li><a href="#" class="tag-link" data-tag="transfers">Transfers</a></li>
-            <li><a href="#" class="tag-link" data-tag="football-news">Football News</a></li>
-        </ul>
+    <!-- Sports News Navigation Tabs - Improved Design -->
+    <div class="sports-tabs-container">
+        <div class="sports-tabs-nav">
+            <ul>
+                <li><a href="#" class="tab-link active" data-tag="scores"><i class="fas fa-futbol"></i> Live Scores</a></li>
+                <li><a href="#" class="tab-link" data-tag="transfers"><i class="fas fa-exchange-alt"></i> Transfer News</a></li>
+                <li><a href="#" class="tab-link" data-tag="football-news"><i class="fas fa-newspaper"></i> Football News</a></li>
+            </ul>
+        </div>
     </div>
 
-    <!-- Content Area for Partial Views -->
+    <!-- Content Area for Partial Views - Enhanced Styling -->
     <div id="tag-content" class="tag-content-area">
-        <!-- Default content or first tab content will load here -->
+        <!-- Default content will load here -->
         @await Html.PartialAsync("_ScoresPartial")
+    </div>
+
+    <!-- Featured Transfer Section -->
+    <div class="featured-transfers">
+        <h2 class="section-title">Featured Transfers</h2>
+        <div class="transfer-grid">
+            <div class="transfer-card">
+                <div class="transfer-player-img">
+                    <img src="/media/players/default-player.jpg" alt="Player">
+                </div>
+                <div class="transfer-details">
+                    <h3>Kylian Mbappé</h3>
+                    <div class="transfer-clubs">
+                        <span class="from-club">PSG</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="to-club">Real Madrid</span>
+                    </div>
+                    <div class="transfer-fee">€180M</div>
+                </div>
+            </div>
+            <div class="transfer-card">
+                <div class="transfer-player-img">
+                    <img src="/media/players/default-player.jpg" alt="Player">
+                </div>
+                <div class="transfer-details">
+                    <h3>Erling Haaland</h3>
+                    <div class="transfer-clubs">
+                        <span class="from-club">Dortmund</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <span class="to-club">Man City</span>
+                    </div>
+                    <div class="transfer-fee">€75M</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Main Content Block Grid -->
@@ -37,38 +74,49 @@
 
 @section Scripts {
     <script>
+        // Add Font Awesome from CDN directly in the script
+        if (!document.getElementById('font-awesome-css')) {
+            var fontAwesome = document.createElement('link');
+            fontAwesome.id = 'font-awesome-css';
+            fontAwesome.rel = 'stylesheet';
+            fontAwesome.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
+            document.head.appendChild(fontAwesome);
+        }
+        
         $(document).ready(function() {
-            // Handle tag clicks
-            $('.tag-link').on('click', function(e) {
+            // Handle tab clicks with improved animation
+            $('.tab-link').on('click', function(e) {
                 e.preventDefault();
                 var tag = $(this).data('tag');
                 
-                // Add active class to clicked tag
-                $('.tag-link').removeClass('active');
+                // Add active class to clicked tab with animation
+                $('.tab-link').removeClass('active');
                 $(this).addClass('active');
                 
-                // Load appropriate partial view based on tag
-                var partialUrl = '';
-                switch(tag) {
-                    case 'scores':
-                        partialUrl = '@Url.Action("GetScoresPartial", "SportsNews")';
-                        break;
-                    case 'transfers':
-                        partialUrl = '@Url.Action("GetTransfersPartial", "SportsNews")';
-                        break;
-                    case 'football-news':
-                        partialUrl = '@Url.Action("GetFootballNewsPartial", "SportsNews")';
-                        break;
-                }
-                
-                // Load the partial view via AJAX
-                if (partialUrl) {
-                    $('#tag-content').load(partialUrl);
-                }
+                // Fade out current content
+                $('#tag-content').fadeOut(200, function() {
+                    // Load appropriate partial view based on tag
+                    var partialUrl = '';
+                    switch(tag) {
+                        case 'scores':
+                            partialUrl = '@Url.Action("GetScoresPartial", "SportsNews")';
+                            break;
+                        case 'transfers':
+                            partialUrl = '@Url.Action("GetTransfersPartial", "SportsNews")';
+                            break;
+                        case 'football-news':
+                            partialUrl = '@Url.Action("GetFootballNewsPartial", "SportsNews")';
+                            break;
+                    }
+                    
+                    // Load the partial view via AJAX and fade in
+                    if (partialUrl) {
+                        $(this).load(partialUrl, function() {
+                            $(this).fadeIn(200);
+                        });
+                    }
+                });
             });
-            
-            // Set first tab as active by default
-            $('.tag-link:first').addClass('active');
         });
     </script>
 }

@@ -1,0 +1,50 @@
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<Umbraco.Cms.Core.Models.Blocks.BlockGridItem>
+@{
+    var content = Model.Content;
+    var title = content.Value<string>("title") ?? "Latest Scores";
+    var matchDate = content.Value<DateTime?>("matchDate");
+    var homeTeam = content.Value<string>("homeTeam");
+    var awayTeam = content.Value<string>("awayTeam");
+    var homeScore = content.Value<int?>("homeScore");
+    var awayScore = content.Value<int?>("awayScore");
+    var matchStatus = content.Value<string>("matchStatus");
+}
+
+<div class="scores-widget">
+    <h3 class="widget-title">@title</h3>
+    
+    <div class="match-container">
+        @if (!string.IsNullOrEmpty(homeTeam) && !string.IsNullOrEmpty(awayTeam))
+        {
+            <div class="match">
+                <div class="teams">
+                    <span class="team home">@homeTeam</span>
+                    @if (homeScore.HasValue && awayScore.HasValue)
+                    {
+                        <span class="score">@homeScore - @awayScore</span>
+                    }
+                    else
+                    {
+                        <span class="score">vs</span>
+                    }
+                    <span class="team away">@awayTeam</span>
+                </div>
+                
+                <div class="match-info">
+                    @if (matchDate.HasValue)
+                    {
+                        <span class="match-date">@matchDate.Value.ToString("MMM d, yyyy")</span>
+                    }
+                    @if (!string.IsNullOrEmpty(matchStatus))
+                    {
+                        <span class="match-status">@matchStatus</span>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <p>No match data available</p>
+        }
+    </div>
+</div>

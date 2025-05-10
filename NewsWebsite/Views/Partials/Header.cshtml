@@ -11,7 +11,7 @@
     // Get navigation pages
     var homePage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "homePage");
     var eventsPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "eventListingPage");
-    var newsPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "newsListPage");
+    var newsPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "newsPage");
     var contactPage = Umbraco.ContentAtRoot().SelectMany(x => x.DescendantsOrSelf()).FirstOrDefault(x => x.ContentType.Alias == "contactPage");
 }
 
