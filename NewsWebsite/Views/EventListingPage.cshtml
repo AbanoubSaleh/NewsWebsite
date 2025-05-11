@@ -1,6 +1,13 @@
 ﻿@using Umbraco.Cms.Web.Common.PublishedModels;
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.EventListingPage>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@using NewsWebsite.Controllers;
+@using NewsWebsite.Models;
+@using Umbraco.Cms.Core.Models.PublishedContent;
+@using Examine;
+@using Examine.Search;
+@using Umbraco.Cms.Infrastructure.Examine;
+@inject IExamineManager ExamineManager
 @{
     Layout = "_Layout.cshtml";
     ViewData["Title"] = "Events";
@@ -13,11 +20,56 @@
         currentPage = page;
     }
 
-    // Get all events
-    var allEvents = Umbraco.ContentAtRoot()
-        .DescendantsOrSelf<EventDetailPage>()
-        .Where(e => e.IsVisible())
-        .OrderByDescending(e => e.EventDate);
+    // Get search term from query string
+    string searchTerm = Context.Request.Query["query"].ToString();
+    var searchModel = new EventSearchModel { SearchTerm = searchTerm };
+
+    // Get all events - either filtered by search or all events
+    IEnumerable<EventDetailPage> allEvents;
+
+    if (!string.IsNullOrWhiteSpace(searchTerm))
+    {
+        // Use Examine for searching
+        if (ExamineManager.TryGetIndex("ExternalIndex", out var index))
+        {
+            var searcher = index.Searcher;
+            var query = searcher.CreateQuery()
+                .NodeTypeAlias("eventDetailPage")
+                .And()
+                .GroupedOr(new[] { "nodeName", "location", "description" }, searchTerm);
+
+            var searchResults = query.Execute();
+            
+            // Convert search results to IPublishedContent
+            var eventNodes = searchResults
+                .Select(result => Umbraco.Content(result.Id))
+                .Where(content => content != null)
+                .OfType<EventDetailPage>()
+                .Where(e => e.IsVisible())
+                .OrderByDescending(e => e.EventDate);
+
+            allEvents = eventNodes;
+        }
+        else
+        {
+            // Fallback if index not found
+            allEvents = Umbraco.ContentAtRoot()
+                .DescendantsOrSelf<EventDetailPage>()
+                .Where(e => e.IsVisible() && 
+                    (e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                     (e.Location != null && e.Location.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                     (e.Description != null && e.Description.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))))
+                .OrderByDescending(e => e.EventDate);
+        }
+    }
+    else
+    {
+        // No search term, get all events
+        allEvents = Umbraco.ContentAtRoot()
+            .DescendantsOrSelf<EventDetailPage>()
+            .Where(e => e.IsVisible())
+            .OrderByDescending(e => e.EventDate);
+    }
 
     // Calculate pagination
     int totalItems = allEvents.Count();
@@ -28,6 +80,41 @@
 }
 
 <div class="container py-4">
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Search Events</h5>
+                    <form action="@Model.Url()" method="get" class="row g-3">
+                        <div class="col-md-9">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" name="query" class="form-control" placeholder="Search by event name, location or description..." value="@searchTerm" />
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results Info -->
+    @if (!string.IsNullOrWhiteSpace(searchTerm))
+    {
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Showing results for: <strong>@searchTerm</strong> (@totalItems @(totalItems == 1 ? "result" : "results") found)
+                    <a href="@Model.Url()" class="alert-link ms-2"><i class="fas fa-times"></i> Clear search</a>
+                </div>
+            </div>
+        </div>
+    }
 
     <!-- Events Listing -->
     <div class="row mb-4">
@@ -90,7 +177,14 @@
         {
             <div class="col-12">
                 <div class="alert alert-info">
-                    No events found. Please check back later for upcoming events.
+                    @if (!string.IsNullOrWhiteSpace(searchTerm))
+                    {
+                        <p>No events found matching your search criteria. Please try a different search term.</p>
+                    }
+                    else
+                    {
+                        <p>No events found. Please check back later for upcoming events.</p>
+                    }
                 </div>
             </div>
         }
@@ -106,7 +200,7 @@
                         @if (currentPage > 1)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="?page=@(currentPage - 1)" aria-label="Previous">
+                                <a class="page-link" href="?query=@searchTerm&page=@(currentPage - 1)" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
@@ -126,14 +220,14 @@
                             }
                             else
                             {
-                                <li class="page-item"><a class="page-link" href="?page=@i">@i</a></li>
+                                <li class="page-item"><a class="page-link" href="?query=@searchTerm&page=@i">@i</a></li>
                             }
                         }
                         
                         @if (currentPage < totalPages)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="?page=@(currentPage + 1)" aria-label="Next">
+                                <a class="page-link" href="?query=@searchTerm&page=@(currentPage + 1)" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>
