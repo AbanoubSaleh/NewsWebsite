@@ -5,19 +5,24 @@ public class ContentSavingHandler : INotificationHandler<ContentSavingNotificati
 {
     public void Handle(ContentSavingNotification notification)
     {
-        foreach (var content in notification.SavedEntities)
+        try
         {
-            var title = content.GetValue<string>("title");
-
-            if (string.IsNullOrWhiteSpace(title) || title.Trim().ToLower().Equals("title"))
+            foreach (var content in notification.SavedEntities)
             {
-                notification.CancelOperation(
-                    new EventMessage("Error", "Invalid Title", EventMessageType.Error)
-                );
-            }
+                var title = content.GetValue<string>("title") ?? string.Empty;
 
-            content.SetValue("title", title?.Trim());
+                if (!string.IsNullOrWhiteSpace(title) || title.Trim().ToLower().Equals("title"))
+                {
+                    notification.CancelOperation(
+                        new EventMessage("Error", "Invalid Title", EventMessageType.Error)
+                    );
+                }
+
+                content.SetValue("title", title?.Trim());
+            }
         }
+        catch { }
+
     }
 }
 

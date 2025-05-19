@@ -18,14 +18,14 @@ using Umbraco.Extensions;
 
 namespace Umbraco.Cms.Web.Common.PublishedModels
 {
-	/// <summary>Event Listing Page</summary>
-	[PublishedModel("eventListingPage")]
-	public partial class EventListingPage : PublishedContentModel
+	/// <summary>Event Review</summary>
+	[PublishedModel("eventReview")]
+	public partial class EventReview : PublishedContentModel
 	{
 		// helpers
 #pragma warning disable 0109 // new is redundant
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.8.0+a486d5d")]
-		public new const string ModelTypeAlias = "eventListingPage";
+		public new const string ModelTypeAlias = "eventReview";
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.8.0+a486d5d")]
 		public new const PublishedItemType ModelItemType = PublishedItemType.Content;
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.8.0+a486d5d")]
@@ -34,14 +34,14 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 			=> PublishedModelUtility.GetModelContentType(publishedSnapshotAccessor, ModelItemType, ModelTypeAlias);
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.8.0+a486d5d")]
 		[return: global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		public static IPublishedPropertyType GetModelPropertyType<TValue>(IPublishedSnapshotAccessor publishedSnapshotAccessor, Expression<Func<EventListingPage, TValue>> selector)
+		public static IPublishedPropertyType GetModelPropertyType<TValue>(IPublishedSnapshotAccessor publishedSnapshotAccessor, Expression<Func<EventReview, TValue>> selector)
 			=> PublishedModelUtility.GetModelPropertyType(GetModelContentType(publishedSnapshotAccessor), selector);
 #pragma warning restore 0109
 
 		private IPublishedValueFallback _publishedValueFallback;
 
 		// ctor
-		public EventListingPage(IPublishedContent content, IPublishedValueFallback publishedValueFallback)
+		public EventReview(IPublishedContent content, IPublishedValueFallback publishedValueFallback)
 			: base(content, publishedValueFallback)
 		{
 			_publishedValueFallback = publishedValueFallback;
@@ -50,33 +50,26 @@ namespace Umbraco.Cms.Web.Common.PublishedModels
 		// properties
 
 		///<summary>
-		/// Enable Search
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.8.0+a486d5d")]
-		[ImplementPropertyType("enableSearch")]
-		public virtual bool EnableSearch => this.Value<bool>(_publishedValueFallback, "enableSearch");
-
-		///<summary>
-		/// Page Size
-		///</summary>
-		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.8.0+a486d5d")]
-		[ImplementPropertyType("pageSize")]
-		public virtual int PageSize => this.Value<int>(_publishedValueFallback, "pageSize");
-
-		///<summary>
-		/// searchPlaceholder: Search by event name, location or description...
+		/// Comment
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.8.0+a486d5d")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("searchPlaceholder")]
-		public virtual string SearchPlaceholder => this.Value<string>(_publishedValueFallback, "searchPlaceholder");
+		[ImplementPropertyType("comment")]
+		public virtual string Comment => this.Value<string>(_publishedValueFallback, "comment");
 
 		///<summary>
-		/// Search Term
+		/// Rate Stars
+		///</summary>
+		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.8.0+a486d5d")]
+		[ImplementPropertyType("rateStars")]
+		public virtual int RateStars => this.Value<int>(_publishedValueFallback, "rateStars");
+
+		///<summary>
+		/// Reviewer Name
 		///</summary>
 		[global::System.CodeDom.Compiler.GeneratedCodeAttribute("Umbraco.ModelsBuilder.Embedded", "13.8.0+a486d5d")]
 		[global::System.Diagnostics.CodeAnalysis.MaybeNull]
-		[ImplementPropertyType("searchTerm")]
-		public virtual string SearchTerm => this.Value<string>(_publishedValueFallback, "searchTerm");
+		[ImplementPropertyType("reviewerName")]
+		public virtual string ReviewerName => this.Value<string>(_publishedValueFallback, "reviewerName");
 	}
 }

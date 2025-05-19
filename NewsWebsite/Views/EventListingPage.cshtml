@@ -1,5 +1,6 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
-@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.EventListingPage>
+﻿@using NewsWebsite.Models.ViewModels
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<EventListingPageViewModel>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
 @using NewsWebsite.Controllers;
 @using NewsWebsite.Models;
@@ -120,7 +121,7 @@
     <div class="row mb-4">
         @if (eventsForPage.Any())
         {
-            foreach (var eventItem in eventsForPage)
+            foreach (var eventItem in Model.events as IEnumerable<EventDetailPage> ?? [])
             {
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100 shadow-sm hover-card">
