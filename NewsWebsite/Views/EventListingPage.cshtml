@@ -14,70 +14,19 @@
     ViewData["Title"] = "Events";
 
     // Pagination setup
-    int pageSize = Model.PageSize > 0 ? Model.PageSize : 10;
-    int currentPage = 1;
-    if (int.TryParse(Context.Request.Query["page"], out int page))
-    {
-        currentPage = page;
-    }
+    int pageSize = Model.PageSize;
+    int currentPage = Model.currentPage;
 
     // Get search term from query string
     string searchTerm = Context.Request.Query["query"].ToString();
     var searchModel = new EventSearchModel { SearchTerm = searchTerm };
 
-    // Get all events - either filtered by search or all events
-    IEnumerable<EventDetailPage> allEvents;
-
-    if (!string.IsNullOrWhiteSpace(searchTerm))
-    {
-        // Use Examine for searching
-        if (ExamineManager.TryGetIndex("ExternalIndex", out var index))
-        {
-            var searcher = index.Searcher;
-            var query = searcher.CreateQuery()
-                .NodeTypeAlias("eventDetailPage")
-                .And()
-                .GroupedOr(new[] { "nodeName", "location", "description" }, searchTerm);
-
-            var searchResults = query.Execute();
-            
-            // Convert search results to IPublishedContent
-            var eventNodes = searchResults
-                .Select(result => Umbraco.Content(result.Id))
-                .Where(content => content != null)
-                .OfType<EventDetailPage>()
-                .Where(e => e.IsVisible())
-                .OrderByDescending(e => e.EventDate);
-
-            allEvents = eventNodes;
-        }
-        else
-        {
-            // Fallback if index not found
-            allEvents = Umbraco.ContentAtRoot()
-                .DescendantsOrSelf<EventDetailPage>()
-                .Where(e => e.IsVisible() && 
-                    (e.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
-                     (e.Location != null && e.Location.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                     (e.Description != null && e.Description.ToString().Contains(searchTerm, StringComparison.OrdinalIgnoreCase))))
-                .OrderByDescending(e => e.EventDate);
-        }
-    }
-    else
-    {
-        // No search term, get all events
-        allEvents = Umbraco.ContentAtRoot()
-            .DescendantsOrSelf<EventDetailPage>()
-            .Where(e => e.IsVisible())
-            .OrderByDescending(e => e.EventDate);
-    }
-
     // Calculate pagination
-    int totalItems = allEvents.Count();
-    int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+    int totalItems = Model.totalItems;
+    int totalPages = Model.totalPages;
 
-    // Get events for current page
-    var eventsForPage = allEvents.Skip((currentPage - 1) * pageSize).Take(pageSize);
+    // Get events for current page and cast each item to EventDetailPage
+    var eventsForPage = Model.events.Select(e => e as EventDetailPage);
 }
 
 <div class="container py-4">
@@ -87,17 +36,21 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Search Events</h5>
-                    <form action="@Model.Url()" method="get" class="row g-3">
-                        <div class="col-md-9">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                <input type="text" name="query" class="form-control" placeholder="Search by event name, location or description..." value="@searchTerm" />
+                    @using (Html.BeginForm("SearchEvents", "EventListingPage", FormMethod.Get))
+                    {
+                        <div class="row g-3">
+                            <div class="col-md-9">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" name="searchTerm" class="form-control" placeholder="Search by event name, location or description..." value="@Context.Request.Query["searchTerm"]" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100">Search</button>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary w-100">Search</button>
-                        </div>
-                    </form>
+                    }
+
                 </div>
             </div>
         </div>
@@ -121,7 +74,7 @@
     <div class="row mb-4">
         @if (eventsForPage.Any())
         {
-            foreach (var eventItem in Model.events as IEnumerable<EventDetailPage> ?? [])
+            foreach (var eventItem in eventsForPage)
             {
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100 shadow-sm hover-card">
@@ -201,7 +154,7 @@
                         @if (currentPage > 1)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="?query=@searchTerm&page=@(currentPage - 1)" aria-label="Previous">
+                                <a class="page-link" href="@Url.Action("GetPageContent", "EventListingPageSurface", new { pageNumber = currentPage - 1, pageSize = pageSize ,pageId = Model.Id})" aria-label="Previous">
                                     <span aria-hidden="true">&laquo;</span>
                                 </a>
                             </li>
@@ -221,14 +174,14 @@
                             }
                             else
                             {
-                                <li class="page-item"><a class="page-link" href="?query=@searchTerm&page=@i">@i</a></li>
+                                <li class="page-item"><a class="page-link" href="@Url.Action("GetPageContent", "EventListingPageSurface", new { pageNumber = i, pageSize = pageSize ,pageId = Model.Id })">@i</a></li>
                             }
                         }
                         
                         @if (currentPage < totalPages)
                         {
                             <li class="page-item">
-                                <a class="page-link" href="?query=@searchTerm&page=@(currentPage + 1)" aria-label="Next">
+                                <a class="page-link" href="@Url.Action("GetPageContent", "EventListingPageSurface", new { pageNumber = currentPage + 1, pageSize = pageSize ,pageId = Model.Id })" aria-label="Next">
                                     <span aria-hidden="true">&raquo;</span>
                                 </a>
                             </li>

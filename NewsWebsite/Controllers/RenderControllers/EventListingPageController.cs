@@ -31,8 +31,20 @@ public class EventListingPageController : RenderController
                 .Where(e => e.IsVisible())
                 .OrderByDescending(e => e.EventDate).AsEnumerable() ?? [];
         var currentPage = CurrentPage as EventListingPage;
+       
+        //pagination info
+        var pageSize = currentPage?.PageSize ?? 10;
+        var totalItems = listOfEvents.Count();
+        var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+        listOfEvents =
+            listOfEvents           
+            .Take(currentPage?.PageSize ?? 10);
         var viewModel = new EventListingPageViewModel(CurrentPage, _publishedValueFallback, listOfEvents);
-        viewModel.PageSize = currentPage?.PageSize ?? 10;
+        viewModel.PageSize = pageSize;
+        viewModel.totalItems = totalItems;
+        viewModel.totalPages = totalPages;
+        viewModel.totalItemsInPage = Math.Min(pageSize,listOfEvents.Count());
         return View("EventListingPage", viewModel);    
     }
 }

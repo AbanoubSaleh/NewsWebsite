@@ -7,10 +7,15 @@ builder.CreateUmbracoBuilder()
     .AddComposers()
     .Build();
 
+// Add controllers for API endpoints
+builder.Services.AddControllers();
+
 WebApplication app = builder.Build();
 
 await app.BootUmbracoAsync();
 
+// Map controller routes
+app.MapControllers();
 
 app.UseUmbraco()
     .WithMiddleware(u =>

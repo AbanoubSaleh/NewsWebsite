@@ -10,5 +10,9 @@ public class EventListingPageViewModel : PublishedContentWrapped
         this.events = events;
     }
     public int PageSize { get; set; } = 10;
+    public int currentPage { get; set; } = 1;
+    public int totalPages { get; set; } = 1;
+    public int totalItems { get; set; } = 0;
+    public int totalItemsInPage { get; set; } = 0;
 
 }
