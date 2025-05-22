@@ -22,27 +22,25 @@ public class EventReviewSurfaceController : SurfaceController
     private readonly IContentService _contentService;
 
 
-    public EventReviewSurfaceController(IUmbracoContextAccessor umbracoContextAccessor, IUmbracoDatabaseFactory databaseFactory, ServiceContext services, AppCaches appCaches, IProfilingLogger profilingLogger, IPublishedUrlProvider publishedUrlProvider, IPublishedValueFallback publishedValueFallback, IPublishedContentQuery contentQuery, IContentService contentService) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
+    public EventReviewSurfaceController(IUmbracoContextAccessor umbracoContextAccessor,
+                                        IUmbracoDatabaseFactory databaseFactory,
+                                        ServiceContext services,
+                                        AppCaches appCaches,
+                                        IProfilingLogger profilingLogger,
+                                        IPublishedUrlProvider publishedUrlProvider,
+                                        IPublishedValueFallback publishedValueFallback,
+                                        IPublishedContentQuery contentQuery,
+                                        IContentService contentService) : base(umbracoContextAccessor, databaseFactory, services, appCaches, profilingLogger, publishedUrlProvider)
     {
         _publishedValueFallback = publishedValueFallback;
         _contentQuery = contentQuery;
         _contentService = contentService;
     }
-    [HttpGet]
-    public IActionResult RenderEventReviewForm(int eventId, string eventName)
-    {
-        var eventPage = _contentQuery.Content(eventId);
-        var model = new EventReviewViewModel(eventPage, _publishedValueFallback)
-        {
-            EventId = eventId,
-            EventName = eventName
-        };
-        return View("EventReview", model);
-    }
+
     [HttpPost]
-    [AutoValidateAntiforgeryToken]
     [ValidateUmbracoFormRouteString]
-    public IActionResult SubmitReview(EventReviewViewModel model)
+    [ValidateAntiForgeryToken]
+    public IActionResult SubmitReview(AddReviewViewModel model)
     {
         if (!ModelState.IsValid)
         {
@@ -57,11 +55,6 @@ public class EventReviewSurfaceController : SurfaceController
         content.SetValue("comment", model.Comment);
         content.SetValue("reviewerName", model.ReviewerName);
         content.SetValue("rateStars", model.RateStars);
-
-        // Set the relationship to the event
-        // This assumes you have a property called "reviewedEvent" in your EventReview document type
-        // that is a content picker pointing to EventDetailPage
-        content.SetValue("reviewedEvent", model.EventId);
 
         PublishResult publishResult = _contentService.SaveAndPublish(content);
         if (publishResult.Success == false)

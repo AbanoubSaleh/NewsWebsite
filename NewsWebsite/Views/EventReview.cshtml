@@ -7,7 +7,7 @@
     Layout = "_Layout.cshtml";
 }
 
-@using (Html.BeginUmbracoForm<EventReviewSurfaceController>("SubmitReview", "EventReview", FormMethod.Post))
+@using (Html.BeginUmbracoForm<EventReviewSurfaceController>(nameof(EventReviewSurfaceController.SubmitReview), FormMethod.Post))
 {
     <div class="container py-4">
         <div class="row">

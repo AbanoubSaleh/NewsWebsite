@@ -36,21 +36,35 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Search Events</h5>
-                    @using (Html.BeginForm("SearchEvents", "EventListingPage", FormMethod.Get))
-                    {
-                        <div class="row g-3">
-                            <div class="col-md-9">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    <input type="text" name="searchTerm" class="form-control" placeholder="Search by event name, location or description..." value="@Context.Request.Query["searchTerm"]" />
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-primary w-100">Search</button>
+                    <div class="row g-3">
+                        <div class="col-md-9">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search by event name, location or description..." value="@Context.Request.Query["searchTerm"]" />
                             </div>
                         </div>
-                    }
+                        <div class="col-md-3">
+                            <button type="button" id="searchButton" class="btn btn-primary w-100">Search</button>
+                        </div>
+                    </div>
 
+                    <script>
+                        document.getElementById('searchButton').addEventListener('click', function() {
+                            performSearch();
+                        });
+                        
+                        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                performSearch();
+                            }
+                        });
+                        
+                        function performSearch() {
+                            var searchTerm = document.getElementById('searchInput').value;
+                            window.location.href = '@Url.Action("SearchEvents", "EventListingPageSurface")' + '?searchTerm=' + encodeURIComponent(searchTerm);
+                        }
+                    </script>
                 </div>
             </div>
         </div>
